@@ -15,10 +15,7 @@ pip install requests
 ### 2. Get your API keys
 
 **Grok API key** (for AI qualification):
-**Google Places API key** (for finding businesses):
-- Go to https://console.cloud.google.com
-- Create a project → Enable "Places API" → Create Credentials → API Key
-- Note: Google gives $200/month free credit — more than enough to start
+
 
 ### 3. Add your keys to agent.py
 Open agent_free.py and replace these two lines near the top:
