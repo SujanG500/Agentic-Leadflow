@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LeadFlow — E-commerce Leads</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0a0f;
+    --bg2: #111118;
+    --bg3: #1a1a24;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.13);
+    --text: #f0f0f8;
+    --muted: #888899;
+    --dim: #444455;
+    --hot: #ff6b4a;
+    --hot-bg: rgba(255,107,74,0.1);
+    --warm: #f5c842;
+    --warm-bg: rgba(245,200,66,0.1);
+    --cold: #4a9eff;
+    --cold-bg: rgba(74,158,255,0.1);
+    --accent: #7c6dff;
+    --accent-bg: rgba(124,109,255,0.12);
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    line-height: 1.6;
+  }
+
+  /* Grid noise texture */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: 
+      linear-gradient(rgba(124,109,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(124,109,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrap { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; padding: 0 24px 80px; }
+
+  /* Header */
+  header {
+    padding: 40px 0 32px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 32px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .logo {
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    color: var(--text);
+  }
+
+  .logo span {
+    color: var(--accent);
+  }
+
+  .tagline {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  .header-meta {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    text-align: right;
+  }
+
+  /* Stats row */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+
+  .stat {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 20px;
+  }
+
+  .stat-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+
+  .stat-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .stat-value.hot { color: var(--hot); }
+  .stat-value.warm { color: var(--warm); }
+  .stat-value.cold { color: var(--cold); }
+
+  /* Controls */
+  .controls {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .search-box {
+    flex: 1;
+    min-width: 200px;
+    background: var(--bg2);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .search-box:focus { border-color: var(--accent); }
+  .search-box::placeholder { color: var(--dim); }
+
+  .filter-group { display: flex; gap: 6px; }
+
+  .filter-btn {
+    padding: 7px 16px;
+    border-radius: 8px;
+    border: 1px solid var(--border2);
+    background: transparent;
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .filter-btn:hover { border-color: var(--border2); color: var(--text); background: var(--bg3); }
+  .filter-btn.active { background: var(--accent-bg); border-color: var(--accent); color: var(--text); }
+  .filter-btn.hot.active { background: var(--hot-bg); border-color: var(--hot); color: var(--hot); }
+  .filter-btn.warm.active { background: var(--warm-bg); border-color: var(--warm); color: var(--warm); }
+  .filter-btn.cold.active { background: var(--cold-bg); border-color: var(--cold); color: var(--cold); }
+
+  /* Lead grid */
+  #leads-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 16px;
+  }
+
+  /* Lead card */
+  .lead-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    transition: border-color 0.2s, transform 0.15s;
+    animation: fadeIn 0.3s ease forwards;
+    opacity: 0;
+  }
+
+  .lead-card:hover {
+    border-color: var(--border2);
+    transform: translateY(-2px);
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .card-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .biz-name {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.3;
+  }
+
+  .tier-badge {
+    flex-shrink: 0;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 999px;
+    border: 1px solid;
+  }
+
+  .tier-badge.Hot { color: var(--hot); border-color: var(--hot); background: var(--hot-bg); }
+  .tier-badge.Warm { color: var(--warm); border-color: var(--warm); background: var(--warm-bg); }
+  .tier-badge.Cold { color: var(--cold); border-color: var(--cold); background: var(--cold-bg); }
+
+  .score-bar-wrap {
+    margin-bottom: 14px;
+  }
+
+  .score-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+  }
+
+  .score-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .score-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .score-bar {
+    height: 3px;
+    background: var(--bg3);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .score-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.6s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  .fill-Hot { background: var(--hot); }
+  .fill-Warm { background: var(--warm); }
+  .fill-Cold { background: var(--cold); }
+
+  .card-details {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 14px;
+  }
+
+  .detail-row { display: flex; gap: 8px; align-items: flex-start; }
+  .detail-icon { flex-shrink: 0; }
+  .detail-text { word-break: break-all; }
+  .detail-text a { color: var(--accent); text-decoration: none; }
+  .detail-text a:hover { text-decoration: underline; }
+
+  .card-divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 14px 0;
+  }
+
+  .pain-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+
+  .pain-text {
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.5;
+    margin-bottom: 12px;
+  }
+
+  .pitch-box {
+    background: var(--accent-bg);
+    border: 1px solid rgba(124,109,255,0.2);
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 12px;
+    color: #bbb8ff;
+    line-height: 1.6;
+    font-style: italic;
+    cursor: pointer;
+    transition: background 0.15s;
+    position: relative;
+  }
+
+  .pitch-box:hover { background: rgba(124,109,255,0.18); }
+
+  .pitch-box::after {
+    content: 'Click to copy';
+    position: absolute;
+    bottom: 6px;
+    right: 8px;
+    font-size: 9px;
+    font-family: 'DM Mono', monospace;
+    color: var(--dim);
+    font-style: normal;
+  }
+
+  .pitch-box.copied::after { content: 'Copied!'; color: var(--accent); }
+
+  /* Empty state */
+  .empty {
+    grid-column: 1/-1;
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+  }
+
+  /* Load button */
+  #load-btn {
+    display: block;
+    margin: 40px auto 0;
+    padding: 12px 32px;
+    background: var(--accent-bg);
+    border: 1px solid var(--accent);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  #load-btn:hover { background: rgba(124,109,255,0.2); }
+
+  /* No file notice */
+  .notice {
+    background: var(--bg2);
+    border: 1px solid var(--border2);
+    border-radius: 12px;
+    padding: 32px;
+    text-align: center;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    line-height: 2;
+    margin-top: 20px;
+  }
+
+  .notice strong { color: var(--text); font-weight: 600; font-family: 'Syne', sans-serif; }
+  .notice code { color: var(--accent); background: var(--accent-bg); padding: 2px 8px; border-radius: 4px; font-size: 12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div>
+      <div class="logo">Lead<span>Flow</span></div>
+      <div class="tagline">E-commerce Lead Intelligence</div>
+    </div>
+    <div class="header-meta" id="header-meta">No data loaded</div>
+  </header>
+
+  <div class="stats" id="stats" style="display:none">
+    <div class="stat">
+      <div class="stat-label">Total Leads</div>
+      <div class="stat-value" id="s-total">0</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Hot Leads</div>
+      <div class="stat-value hot" id="s-hot">0</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Warm Leads</div>
+      <div class="stat-value warm" id="s-warm">0</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Cold Leads</div>
+      <div class="stat-value cold" id="s-cold">0</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Avg Score</div>
+      <div class="stat-value" id="s-avg">—</div>
+    </div>
+  </div>
+
+  <div class="controls" id="controls" style="display:none">
+    <input class="search-box" id="search" type="text" placeholder="Search by name, city, website...">
+    <div class="filter-group">
+      <button class="filter-btn active" onclick="setFilter('all', this)">All</button>
+      <button class="filter-btn hot" onclick="setFilter('Hot', this)">Hot</button>
+      <button class="filter-btn warm" onclick="setFilter('Warm', this)">Warm</button>
+      <button class="filter-btn cold" onclick="setFilter('Cold', this)">Cold</button>
+    </div>
+  </div>
+
+  <div id="leads-grid">
+    <div class="notice" id="notice">
+      <strong>No leads loaded yet</strong><br><br>
+      Run the agent first:<br>
+      <code>python agent.py</code><br><br>
+      Then click the button below to load your leads file.
+    </div>
+  </div>
+
+  <button id="load-btn" onclick="loadFile()">Load leads.json file</button>
+
+</div>
+
+<script>
+let allLeads = [];
+let currentFilter = 'all';
+let searchTerm = '';
+
+function loadFile() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json';
+  input.onchange = e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      try {
+        const data = JSON.parse(ev.target.result);
+        initDashboard(data, file.name);
+      } catch(err) {
+        alert('Error reading file: ' + err.message);
+      }
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+}
+
+function initDashboard(leads, filename) {
+  allLeads = leads;
+  document.getElementById('notice').style.display = 'none';
+  document.getElementById('load-btn').style.display = 'none';
+  document.getElementById('stats').style.display = 'grid';
+  document.getElementById('controls').style.display = 'flex';
+
+  updateStats();
+  renderLeads();
+
+  document.getElementById('header-meta').textContent = 
+    `${filename} · ${leads.length} leads · ${leads[0]?.searched_at || 'unknown date'}`;
+
+  document.getElementById('search').addEventListener('input', e => {
+    searchTerm = e.target.value.toLowerCase();
+    renderLeads();
+  });
+}
+
+function updateStats() {
+  const hot = allLeads.filter(l => l.tier === 'Hot').length;
+  const warm = allLeads.filter(l => l.tier === 'Warm').length;
+  const cold = allLeads.filter(l => l.tier === 'Cold').length;
+  const avg = allLeads.reduce((s, l) => s + (l.score || 0), 0) / allLeads.length;
+
+  document.getElementById('s-total').textContent = allLeads.length;
+  document.getElementById('s-hot').textContent = hot;
+  document.getElementById('s-warm').textContent = warm;
+  document.getElementById('s-cold').textContent = cold;
+  document.getElementById('s-avg').textContent = avg.toFixed(1);
+}
+
+function setFilter(tier, btn) {
+  currentFilter = tier;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderLeads();
+}
+
+function renderLeads() {
+  let leads = allLeads;
+
+  if (currentFilter !== 'all') {
+    leads = leads.filter(l => l.tier === currentFilter);
+  }
+
+  if (searchTerm) {
+    leads = leads.filter(l =>
+      (l.name || '').toLowerCase().includes(searchTerm) ||
+      (l.address || '').toLowerCase().includes(searchTerm) ||
+      (l.website || '').toLowerCase().includes(searchTerm) ||
+      (l.reason || '').toLowerCase().includes(searchTerm)
+    );
+  }
+
+  const grid = document.getElementById('leads-grid');
+
+  if (leads.length === 0) {
+    grid.innerHTML = '<div class="empty">No leads match your filters.</div>';
+    return;
+  }
+
+  grid.innerHTML = leads.map((lead, i) => {
+    const score = lead.score || 0;
+    const pct = (score / 10) * 100;
+    const website = lead.website ? `<div class="detail-row"><span class="detail-icon">🔗</span><span class="detail-text"><a href="${lead.website}" target="_blank">${lead.website.replace(/^https?:\/\//, '').split('/')[0]}</a></span></div>` : '';
+    const phone = lead.phone ? `<div class="detail-row"><span class="detail-icon">📞</span><span class="detail-text">${lead.phone}</span></div>` : '';
+    const rating = lead.rating && lead.rating !== 'N/A' ? `<div class="detail-row"><span class="detail-icon">⭐</span><span class="detail-text">${lead.rating} (${lead.total_ratings || 0} reviews)</span></div>` : '';
+
+    return `
+    <div class="lead-card" style="animation-delay: ${i * 0.04}s">
+      <div class="card-top">
+        <div class="biz-name">${lead.name || 'Unknown'}</div>
+        <span class="tier-badge ${lead.tier}">${lead.tier}</span>
+      </div>
+
+      <div class="score-bar-wrap">
+        <div class="score-row">
+          <span class="score-label">Lead Score</span>
+          <span class="score-num">${score}/10</span>
+        </div>
+        <div class="score-bar">
+          <div class="score-fill fill-${lead.tier}" style="width: ${pct}%"></div>
+        </div>
+      </div>
+
+      <div class="card-details">
+        <div class="detail-row"><span class="detail-icon">📍</span><span class="detail-text">${lead.address || '—'}</span></div>
+        ${phone}
+        ${website}
+        ${rating}
+      </div>
+
+      <hr class="card-divider">
+
+      <div class="pain-label">AI Analysis</div>
+      <div class="pain-text">${lead.reason || '—'}</div>
+
+      <div class="pain-label">Pain Point</div>
+      <div class="pain-text">${lead.pain_point || '—'}</div>
+
+      <div class="pain-label">Outreach Pitch — click to copy</div>
+      <div class="pitch-box" onclick="copyPitch(this, \`${(lead.pitch || '').replace(/`/g, '\\`')}\`)">${lead.pitch || '—'}</div>
+    </div>`;
+  }).join('');
+}
+
+function copyPitch(el, text) {
+  navigator.clipboard.writeText(text).then(() => {
+    el.classList.add('copied');
+    setTimeout(() => el.classList.remove('copied'), 2000);
+  });
+}
+</script>
+</body>
+</html>
