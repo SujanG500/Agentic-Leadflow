@@ -86,3 +86,6 @@ leadgen/
     ├── leads.json    ← Generated after running agent
     └── leads.csv     ← Spreadsheet backup
 ```
+
+<img width="1770" height="783" alt="image" src="https://github.com/user-attachments/assets/ea87a6ab-8aae-4e32-b04c-2fbb3817b3ab" />
+
