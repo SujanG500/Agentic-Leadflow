@@ -14,22 +14,15 @@ pip install requests
 
 ### 2. Get your API keys
 
-**Claude API key** (for AI qualification):
-- Go to https://console.anthropic.com
-- Create an account → API Keys → Create Key
-- Copy the key
-
+**Grok API key** (for AI qualification):
 **Google Places API key** (for finding businesses):
 - Go to https://console.cloud.google.com
 - Create a project → Enable "Places API" → Create Credentials → API Key
 - Note: Google gives $200/month free credit — more than enough to start
 
 ### 3. Add your keys to agent.py
-Open agent.py and replace these two lines near the top:
-```python
-ANTHROPIC_API_KEY = "your-api-key-here"
-GOOGLE_API_KEY = "your-google-api-key"
-```
+Open agent_free.py and replace these two lines near the top:
+
 
 ### 4. Customize your search
 Also in agent.py, edit these to match your target market:
@@ -49,7 +42,7 @@ python agent.py
 This will:
 1. Search Google Maps for e-commerce businesses
 2. Get their website, phone, rating
-3. Send each lead to Claude for AI qualification
+3. Send each lead to Grok for AI qualification
 4. Score them 1-10 and label as Hot / Warm / Cold
 5. Generate a personalized outreach pitch for each
 6. Save results to output/leads.json
