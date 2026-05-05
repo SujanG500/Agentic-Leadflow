@@ -1,7 +1,7 @@
 # LeadFlow — E-commerce Lead Gen Agent
 
 A complete lead generation agent that finds, qualifies, and displays
-e-commerce leads using Google Maps + Claude AI.
+e-commerce leads using Google Maps + Grok AI.
 
 ---
 
