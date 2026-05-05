@@ -78,7 +78,7 @@ This will:
 
 ```
 leadgen/
-├── agent.py          ← Main agent (run this)
+├── agent_free.py          ← Main agent (run this)
 ├── dashboard.html    ← Open in browser to view leads
 ├── requirements.txt  ← Python dependencies
 ├── README.md         ← This file
